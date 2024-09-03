@@ -1,0 +1,210 @@
+﻿@model IEnumerable<onl.Models.Cart>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<h1>My Cart</h1>
+
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+        background-color: #f4f7f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background-color: #007bff;
+        color: white;
+        padding: 15px 0;
+    }
+
+    .navbar-brand {
+        font-size: 1.5em;
+    }
+
+    .main-content {
+        margin: 20px 0;
+    }
+
+    .course-box {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        background: linear-gradient(to bottom, #ffffff, #f9f9f9);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: flex-start;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .course-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+    .course-image {
+        flex: 0 0 150px;
+        margin-right: 15px;
+    }
+
+        .course-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+    .course-details {
+        flex: 1;
+    }
+
+    .course-box h3 {
+        margin-top: 0;
+        color: #007bff;
+    }
+
+    .course-box p {
+        margin: 10px 0;
+    }
+
+    .total-section {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 20px;
+    }
+
+        .total-section h2 {
+            color: #333;
+            margin-top: 0;
+        }
+
+        .total-section p {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-size: 1.1em;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+    footer {
+        background-color: #007bff;
+        color: white;
+        padding: 15px 0;
+        text-align: center;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+    }
+
+</style>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<main class="container mt-4">
+    <div class="row">
+        <!-- Cart Items Section -->
+        @foreach (var item in Model)
+        {
+            <div class="col-md-8">
+                <h2>Your Courses</h2>
+                <div class="course-box mb-3">
+                    <div class="course-image">
+                        <img src="@Url.Content($"~/Content/Images/{item.Thumbnail}")" class="card-img-top" alt="Thumbnail" style="height: 200px; object-fit: cover;" />
+                    </div>
+                    <div class="course-details">
+                        <h3>@item.Name</h3>
+                        <p>@item.Description</p>
+                        <p>@item.Price</p>
+                    </div>
+                    <div class="mt-4">
+                        <form method="post" asp-action="RazorpayCheckout" asp-controller="Cart">
+                            <input type="hidden" name="totalAmount" value="@ViewBag.TotalAmount" />
+                            <button type="submit" class="btn btn-primary">Purchase All</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <!-- Total Amount Section -->
+        @* <div class="col-md-4">
+            <form method="post">
+                <div class="total-section p-3 border rounded">
+                    <h2>Total Amount</h2>
+                    <p>233</p>
+                    <button id="rzp-button1" asp class="btn btn-primary btn-block">Checkout</button>
+                </div>
+            </form>
+        </div> *@
+
+    </div>
+</main>
+
+
+
+
+
+@* <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Your Cart</h2>
+
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="@Url.Content($"~/Content/Images/{item.Thumbnail}")" class="card-img-top" alt="Thumbnail" style="height: 200px; object-fit: cover;" />
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="card-text">@item.Description</p>
+                            <p class="card-text"><strong>Price:</strong> $@item.Price</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-4">
+            <form method="post" asp-action="RazorpayCheckout" asp-controller="Cart">
+                <input type="hidden" name="totalAmount" value="@ViewBag.TotalAmount" />
+                <button type="submit" class="btn btn-primary">Purchase All</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> *@ 

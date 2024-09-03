@@ -1,0 +1,104 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <div>
+        @* Retrieve the username from the session *@
+        @{
+            var username = HttpContextAccessor.HttpContext.Session.GetString("username");
+        }
+
+        <h1>@username, please click on checkout to proceed</h1>
+    </div>
+    <button id="rzp-button1" class="btn btn-outline-dark btn-lg">
+        <i class="fas fa-money-bill"></i> Checkout
+    </button>
+
+    <script>
+        var options = {
+            "key": "rzp_test_Kl7588Yie2yJTV", // Enter the Key ID generated from the Dashboard
+            "amount": "1000", // Amount in paise
+            "currency": "INR",
+            "description": "Solo Learn",
+            "image": "https://example.com/image/rzp.jpg", // Correct URL format
+            "prefill": {
+                "email": "gaurav.kumar@example.com",
+                "contact": "+919900000000" // Correct format
+            },
+            "config": {
+                "display": {
+                    "blocks": {
+                        "utib": {
+                            "name": "Pay Using Axis Bank",
+                            "instruments": [
+                                {
+                                    "method": "card",
+                                    "issuers": ["UTIB"]
+                                },
+                                {
+                                    "method": "netbanking",
+                                    "banks": ["UTIB"]
+                                }
+                            ]
+                        },
+                        "other": {
+                            "name": "Other Payment Methods",
+                            "instruments": [
+                                {
+                                    "method": "card",
+                                    "issuers": ["ICIC"]
+                                },
+                                {
+                                    "method": "netbanking"
+                                }
+                            ]
+                        }
+                    },
+                    "hide": [
+                        {
+                            "method": "upi"
+                        }
+                    ],
+                    "sequence": ["block.utib", "block.other"],
+                    "preferences": {
+                        "show_default_blocks": false
+                    }
+                }
+            },
+            "theme": {
+                "color": "#3399cc" // Customize theme color if needed
+            },
+            "handler": function (response) {
+                // Optionally, you can handle the response or trigger form submission here
+                document.getElementById('payment-form').submit();
+            },
+            "modal": {
+                "ondismiss": function () {
+                    if (confirm("Are you sure you want to close the form?")) {
+                        console.log("Checkout form closed by the user");
+                    } else {
+                        console.log("Complete the Payment");
+                    }
+                } 
+            }
+        };
+
+        var rzp1 = new Razorpay(options);
+        document.getElementById('rzp-button1').onclick = function (e) {
+            rzp1.open();
+            e.preventDefault();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+﻿@* @model UploadVideos
+
+@{
+    ViewData["Title"] = "Upload Videos";
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   
+    <title>Upload Video</title>
+    
+    </style>
+</head>
+
+<body>
+    <div class="upload-video-form">
+        <h1>Upload Videos</h1>
+        <div class="details-container">
+            <div class="details-form">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="Courses">All Courses</label>
+                        <select class="form-control" asp-for="Courses">
+                            <option value="">--select--</option>
+                            @foreach (var course in ViewBag.Courses)
+                            {
+                                <option value="@course.Name">@course.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="TopicName">Topic Name</label>
+                        <input type="text" asp-for="TopicName" class="form-control" id="TopicName"
+                               placeholder="Enter Topic Name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="VideoFile">Upload Video</label>
+                        <input type="file" asp-for="VideoFile" class="form-control" id="VideoFile">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="YouTubeLink">Upload URL</label>
+                        <input type="text" asp-for="YouTubeLink" class="form-control" id="YouTubeLink"
+                               placeholder="Enter YouTube Link" oninput="showVideoPreview()">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/upload.png" alt="Upload Icon">
+                            Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="video-preview">
+                <iframe id="videoPreview" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showVideoPreview() {
+            const link = document.getElementById('YouTubeLink').value;
+            const iframe = document.getElementById('videoPreview');
+            iframe.src = link;
+        }
+    </script>
+</body>
+
+</html>
+ *@
+
+
+@*Previous code without mcqs and assignment (changes made in uploadvideos controller , upload and uploadvideo model
+uploadvideo.cshtml and applicationdbcontext
+*@
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+@model UploadVideos
+
+@{
+    ViewData["Title"] = "Upload Videos";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Upload Video</title>
+</head>
+<body>
+    <div class="upload-video-form">
+        <h1>Upload Videos</h1>
+        <div class="details-container">
+            <div class="details-form">
+                <form method="post" enctype="multipart/form-data">
+                    <!-- Existing fields -->
+                    <div class="form-group">
+                        <label for="Courses">All Courses</label>
+                        <select class="form-control" asp-for="Courses">
+                            <option value="">--select--</option>
+                                @foreach (var course in ViewBag.Courses)
+                                {
+                                    <option value="@course.Name">@course.Name</option>
+                                }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="TopicName">Topic Name</label>
+                        <input type="text" asp-for="TopicName" class="form-control" id="TopicName" placeholder="Enter Topic Name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="VideoFile">Upload Video</label>
+                        <input type="file" asp-for="VideoFile" class="form-control" id="VideoFile">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="YouTubeLink">Upload URL</label>
+                        <input type="text" asp-for="YouTubeLink" class="form-control" id="YouTubeLink" placeholder="Enter YouTube Link" oninput="showVideoPreview()">
+                    </div>
+
+                    <!-- New fields for MCQs -->
+                    <h3>Multiple Choice Questions</h3>
+                    @for (var i = 0; i < 5; i++)
+                    {
+                        <div class="form-group">
+                            <label>MCQ Question @i</label>
+                            <input type="text" name="MCQs[@i].Question" class="form-control" placeholder="Enter Question">
+                            <input type="text" name="MCQs[@i].OptionA" class="form-control" placeholder="Option A">
+                            <input type="text" name="MCQs[@i].OptionB" class="form-control" placeholder="Option B">
+                            <input type="text" name="MCQs[@i].OptionC" class="form-control" placeholder="Option C">
+                            <input type="text" name="MCQs[@i].OptionD" class="form-control" placeholder="Option D">
+                            <input type="text" name="MCQs[@i].Answer" class="form-control" placeholder="Answer">
+                        </div>
+                    }
+
+                    <!-- New field for Assignment -->
+                    <div class="form-group">
+                        <label for="AssignmentQuestion">Assignment Question</label>
+                        <input type="text" name="Assignment.Question" class="form-control" id="AssignmentQuestion" placeholder="Enter Assignment Question">
+                    </div>
+
+                    <!-- Submit button -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/upload.png" alt="Upload Icon">
+                            Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="video-preview">
+                <iframe id="videoPreview" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showVideoPreview() {
+            const link = document.getElementById('YouTubeLink').value;
+            const iframe = document.getElementById('videoPreview');
+            iframe.src = link;
+        }
+    </script>
+</body>
+</html>

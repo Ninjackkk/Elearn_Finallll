@@ -1,0 +1,47 @@
+﻿@model onl.Models.Upload
+
+@{
+    ViewData["Title"] = "Watch Video - " + Model.TopicName;
+}
+
+<h2>Watch Video: @Model.TopicName</h2>
+<div class="content-container">
+    <!-- Video Player Section -->
+    <div class="video-player">
+        <!-- Video URL (could be a YouTube URL) -->
+        <input type="hidden" id="videoUrl" value="@Model.YouTubeLink" />
+
+        <!-- YouTube iframe -->
+        <iframe id="videoFrame" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <!-- Video List Section -->
+    <div class="video-list">
+        <h3>Other Videos</h3>
+        <!-- List of videos for the particular subcourse -->
+        <ul>
+            @* You can add code here to list other videos if needed *@
+        </ul>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Function to load the YouTube video
+    function loadVideo(url) {
+        // Extract video ID from the YouTube URL
+        var videoId = url.split('v=')[1];
+        var ampersandPosition = videoId.indexOf('&');
+        if (ampersandPosition != -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+        }
+        var embedUrl = "https://www.youtube.com/embed/" + videoId;
+        // Set iframe source to the embed URL
+        document.getElementById('videoFrame').src = embedUrl;
+    }
+
+    // Call loadVideo on page load
+    window.onload = function () {
+        var url = document.getElementById('videoUrl').value;
+        loadVideo(url);
+    };
+</script>

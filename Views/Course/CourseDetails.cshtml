@@ -1,0 +1,11 @@
+﻿@model onl.Models.Course
+
+<h2>Course Details</h2>
+
+<div>
+    <h3>@Model.Name</h3>
+    <p>Price: @Model.Price</p>
+    <p>Description: @Model.Description</p>
+    <img src="@Url.Content(Model.Thumbnail)" alt="Course Thumbnail" />
+</div>
+

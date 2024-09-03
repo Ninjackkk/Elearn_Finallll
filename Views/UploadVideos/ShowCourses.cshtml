@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Course>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<h2>Development Courses</h2>
+<p>Courses to get you started</p>
+<p>Explore courses from experienced, real-world experts.</p>
+
+
+
+
+<!-- Course Boxes -->
+<div class="course-boxes" id="most-popular">
+    @foreach (var course in Model)
+    {
+        <div class="course-box">
+            <a href="@Url.Action("ShowVideos", "UploadVideos", new { courseId = course.Id })">
+                <div class="course-thumbnail">
+                    <img src="@course.Thumbnail" alt="@course.Name" />
+                </div>
+                <div class="course-info">
+                    <h4>@course.Name</h4>
+                    <p>@course.Description</p>
+                    <p><strong>InstructorName</strong></p> <!-- Replace with actual instructor name if available -->
+                    <p>
+                        <strong>Rating</strong>
+                        (Reviews)
+                    </p> <!-- Replace with actual rating and reviews if available -->
+                    <h3><strong>$@course.Price</strong></h3>
+                </div>
+            </a>
+            <div class="course-actions">
+                <a href="@Url.Action("EditCourse", "UploadVideos", new { id = course.Id })" class="edit-button">✎</a>
+                <form asp-action="DeleteCourse" asp-controller="UploadVideos" method="post" style="display:inline;">
+                    <input type="hidden" name="id" value="@course.Id" />
+                    <button type="submit" class="delete-button">✖</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Styles -->
+
+
+<script>
+    function showTab(tabId) {
+        var tabs = document.querySelectorAll('.course-boxes');
+        tabs.forEach(function (tab) {
+            tab.style.display = 'none';
+        });
+        document.getElementById(tabId).style.display = 'flex';
+
+        var buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(function (button) {
+            button.classList.remove('active');
+        });
+        document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+    }
+
+    // Show the default tab
+    showTab('most-popular');
+</script>
+
