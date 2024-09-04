@@ -23,81 +23,139 @@ namespace onl.Controllers
         }
 
 
-
-        //public IActionResult PlayVideo(string Courses)
+        //     public IActionResult PlayVideo(string Courses)
         //{
-        //    //var video = db.Uploads
-        //    //    .Where(v => v.Courses == Courses)
-        //    //    .Select(v => new Upload
-        //    //    {
-        //    //        Id = v.Id,
-        //    //        TopicName = v.TopicName,
-        //    //        YouTubeLink = v.YouTubeLink,
-        //    //        VideoFile = v.VideoFile
-        //    //    })
-        //    //    .FirstOrDefault();
+        //    if (string.IsNullOrWhiteSpace(Courses))
+        //    {
+        //        return BadRequest("Course name cannot be empty.");
+        //    }
 
+        //    var normalizedCourse = Courses.Trim().ToLower();
 
+        //    // Fetch the course and its videos
+        //    var course = db.Courses
+        //        .AsEnumerable()  // Assuming `Courses` is a DbSet in your ApplicationDbContext
+        //        .SingleOrDefault(c => string.Equals(c.Name.Trim().ToLower(), normalizedCourse, StringComparison.OrdinalIgnoreCase));
 
-        //        var video = db.Uploads
-        //            .AsEnumerable()  // Switch to client-side evaluation
-        //            .Where(v => string.Equals(v.Courses, Courses, StringComparison.OrdinalIgnoreCase))
-        //            .Select(v => new Upload
-        //            {
-        //                //Id = v.Id,
-        //                TopicName = v.TopicName,
-        //                YouTubeLink = v.YouTubeLink,
-        //                VideoFile = v.VideoFile
-        //            })
-        //            .ToList();
-
-
-
-        //        if (video == null)
+        //    if (course == null)
         //    {
         //        return NotFound();
         //    }
 
+        //    var videos = db.Uploads
+        //        .AsEnumerable()  // Fetch the associated videos
+        //        .Where(v => string.Equals(v.Courses.Trim().ToLower(), normalizedCourse, StringComparison.OrdinalIgnoreCase))
+        //        .Select(v => new Upload
+        //        {
+        //            Id = v.Id,
+        //            TopicName = v.TopicName,
+        //            YouTubeLink = v.YouTubeLink,
+        //            VideoFile = v.VideoFile
+        //        })
+        //        .ToList();
 
+        //    if (!videos.Any())
+        //    {
+        //        return NotFound();
+        //    }
 
+        //    // Create the view model
+        //    var viewModel = new WatchCourse
+        //    {
+        //        Course = course,
+        //        Videos = videos
+        //    };
 
-        //    return View(video);
+        //    return View(viewModel);
         //}
-
-
 
         public IActionResult PlayVideo(string Courses)
         {
+            if (string.IsNullOrWhiteSpace(Courses))
+            {
+                return BadRequest("Course name cannot be empty.");
+            }
+
             var normalizedCourse = Courses.Trim().ToLower();
 
-            var video = db.Uploads
-                .AsEnumerable()  // Switch to client-side evaluation
-                .Select(v => new
+            // Fetch the course and its videos
+            var course = db.Courses
+                .AsEnumerable()  // Fetch all courses and then filter
+                .SingleOrDefault(c => string.Equals(c.Name.Trim().ToLower(), normalizedCourse, StringComparison.OrdinalIgnoreCase));
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            var videos = db.Uploads
+                .AsEnumerable()  // Fetch all uploads and then filter
+                .Where(v => string.Equals(v.Courses.Trim().ToLower(), normalizedCourse, StringComparison.OrdinalIgnoreCase))
+                .Select(v => new Upload
                 {
-                    v.Id,
-                    v.TopicName,
-                    v.YouTubeLink,
-                    v.VideoFile,
-                    NormalizedCourses = v.Courses.Trim().ToLower()  // Normalize case and trim spaces
+                    Id = v.Id,
+                    TopicName = v.TopicName,
+                    YouTubeLink = v.YouTubeLink,
+                    VideoFile = v.VideoFile
                 })
-                .SingleOrDefault(v => string.Equals(v.NormalizedCourses, normalizedCourse, StringComparison.OrdinalIgnoreCase));
+                .ToList();
+
+            if (!videos.Any())
+            {
+                return NotFound();
+            }
+
+            // Fetch MCQs and Assignment for the first video
+            var mainVideo = videos.First();
+            var mcqs = db.MCQs
+                .Where(mcq => mcq.UploadId == mainVideo.Id)
+                .ToList();
+
+            var assignment = db.Assignments
+                .SingleOrDefault(a => a.UploadId == mainVideo.Id);
+
+            // Create the view model
+            var viewModel = new WatchCourse
+            {
+                Course = course,
+                Videos = videos,
+                MCQs = mcqs,
+                Assignment = assignment
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public IActionResult GetVideoDetails(int videoId)
+        {
+            var video = db.Uploads
+                .Include(v => v.MCQs)
+                .Include(v => v.Assignment)
+                .SingleOrDefault(v => v.Id == videoId);
 
             if (video == null)
             {
                 return NotFound();
             }
 
-            // Create a single Upload object to pass to the view
-            var upload = new Upload
+            var mcqs = video.MCQs.ToList();
+            var assignment = video.Assignment;
+
+            var result = new
             {
-                Id = video.Id,
-                TopicName = video.TopicName,
-                YouTubeLink = video.YouTubeLink,
-                VideoFile = video.VideoFile
+                Video = new
+                {
+                    video.Id,
+                    video.YouTubeLink
+                },
+                MCQs = mcqs,
+                Assignment = assignment
             };
 
-            return View(upload);
+            return Json(result);
         }
+
 
     }
 }

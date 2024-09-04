@@ -1,34 +1,91 @@
-﻿@model onl.Models.Upload
+﻿@model onl.Models.WatchCourse
 
 @{
-    ViewData["Title"] = "Watch Video - " + Model.TopicName;
+    ViewData["Title"] = "Watch Course - " + Model.Course.Name;
 }
 
-<h2>Watch Video: @Model.TopicName</h2>
+<h2>Watch Course: @Model.Course.Name</h2>
 <div class="content-container">
     <!-- Video Player Section -->
     <div class="video-player">
-        <!-- Video URL (could be a YouTube URL) -->
-        <input type="hidden" id="videoUrl" value="@Model.YouTubeLink" />
+        @if (Model.Videos.Any())
+        {
+            var mainVideo = Model.Videos.First();
+            <input type="hidden" id="videoUrl" value="@mainVideo.YouTubeLink" />
+            <input type="hidden" id="currentVideoId" value="@mainVideo.Id" />
 
-        <!-- YouTube iframe -->
-        <iframe id="videoFrame" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <!-- YouTube iframe -->
+            <iframe id="videoFrame" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+            <!-- MCQs Section -->
+            <div id="mcqs-section">
+                @if (Model.MCQs.Any())
+                {
+                    <h3>MCQs</h3>
+                    <ul>
+                        @foreach (var mcq in Model.MCQs)
+                        {
+                            <li>
+                                <p>@mcq.Question</p>
+                                <ul>
+                                    <li>@mcq.OptionA</li>
+                                    <li>@mcq.OptionB</li>
+                                    <li>@mcq.OptionC</li>
+                                    <li>@mcq.OptionD</li>
+                                </ul>
+                                <p>Answer: @mcq.Answer</p>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No MCQs available for this video.</p>
+                }
+            </div>
+
+            <!-- Assignment Section -->
+            <div id="assignment-section">
+                @if (Model.Assignment != null)
+                {
+                    <h3>Assignment</h3>
+                    <p>@Model.Assignment.Question</p>
+                }
+                else
+                {
+                    <p>No assignment available for this video.</p>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No videos available for this course.</p>
+        }
     </div>
 
     <!-- Video List Section -->
     <div class="video-list">
         <h3>Other Videos</h3>
-        <!-- List of videos for the particular subcourse -->
+        <!-- List of other videos -->
         <ul>
-            @* You can add code here to list other videos if needed *@
+            @foreach (var video in Model.Videos)
+            {
+                if (video != Model.Videos.First())
+                {
+                    <li>
+                        <img src="@video.VideoFile"
+                             alt="@video.TopicName"
+                             style="cursor: pointer;"
+                             onclick="loadVideo('@video.YouTubeLink', @video.Id)" />
+                    </li>
+                }
+            }
         </ul>
     </div>
 </div>
 
 <script type="text/javascript">
-    //gitdummy
-    // Function to load the YouTube video
-    function loadVideo(url) {
+    function loadVideo(url, videoId) {
         // Extract video ID from the YouTube URL
         var videoId = url.split('v=')[1];
         var ampersandPosition = videoId.indexOf('&');
@@ -36,13 +93,85 @@
             videoId = videoId.substring(0, ampersandPosition);
         }
         var embedUrl = "https://www.youtube.com/embed/" + videoId;
+
         // Set iframe source to the embed URL
         document.getElementById('videoFrame').src = embedUrl;
+
+        // Update the hidden video ID field
+        document.getElementById('videoUrl').value = url;
+        document.getElementById('currentVideoId').value = videoId;
+
+        // Fetch new MCQs and assignment
+        fetch(`/WatchVideo/GetVideoDetails?videoId=${videoId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update MCQs section
+                var mcqsSection = document.getElementById('mcqs-section');
+                mcqsSection.innerHTML = '<h3>MCQs</h3>';
+                if (data.MCQs.length > 0) {
+                    var ul = document.createElement('ul');
+                    data.MCQs.forEach(mcq => {
+                        var li = document.createElement('li');
+                        li.innerHTML = `<p>${mcq.Question}</p>
+                                <ul>
+                                    <li>${mcq.OptionA}</li>
+                                    <li>${mcq.OptionB}</li>
+                                    <li>${mcq.OptionC}</li>
+                                    <li>${mcq.OptionD}</li>
+                                </ul>
+                                <p>Answer: ${mcq.Answer}</p>`;
+                        ul.appendChild(li);
+                    });
+                    mcqsSection.appendChild(ul);
+                } else {
+                    mcqsSection.innerHTML += '<p>No MCQs available for this video.</p>';
+                }
+
+                // Update Assignment section
+                var assignmentSection = document.getElementById('assignment-section');
+                if (data.Assignment) {
+                    assignmentSection.innerHTML = '<h3>Assignment</h3>' +
+                        `<p>${data.Assignment.Question}</p>`;
+                } else {
+                    assignmentSection.innerHTML = '<p>No assignment available for this video.</p>';
+                }
+            });
     }
 
-    // Call loadVideo on page load
+    // Call loadVideo on page load if there's a video URL
     window.onload = function () {
         var url = document.getElementById('videoUrl').value;
-        loadVideo(url);
+        var videoId = document.getElementById('currentVideoId').value;
+        if (url && videoId) {
+            loadVideo(url, videoId);
+        }
     };
 </script>
+
+<style>
+    .content-container {
+        display: flex;
+    }
+
+    .video-player {
+        flex: 2;
+    }
+
+    .video-list {
+        flex: 1;
+        margin-left: 20px;
+    }
+
+        .video-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .video-list li {
+            margin-bottom: 10px;
+        }
+
+    .mcqs-section, .assignment-section {
+        margin-top: 20px;
+    }
+</style>
